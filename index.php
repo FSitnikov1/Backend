@@ -37,34 +37,34 @@
             <div class="form_item">
                 <br>Пол:
                 <label class="form_label labe">
-                    <input type="radio" name="sex" value= 0>
+                    <input type="radio" name="sex" value=1>
                     женский
                 </label>
                 <label class="form_label labe">
-                    <input type="radio" name="sex" value= 1>
+                    <input type="radio" name="sex" value=2>
                     мужской
                 </label>
             </div>
             <div class="form_item">
                 <br>Количество конечностей:<br>
                 <label class="form_label">
-                    <input type="radio" name="limbs" value=0>
+                    <input type="radio" name="limbs" value=1>
                     0
                 </label>
                 <label class="form_label">
-                    <input type="radio" name="limbs" value= 1>
+                    <input type="radio" name="limbs" value=2>
                     1
                 </label>
                 <label class="form_label">
-                    <input type="radio" name="limbs" value= 2>
+                    <input type="radio" name="limbs" value=3>
                     2
                 </label>
                 <label class="form_label">
-                    <input type="radio" name="limbs" value= 3>
+                    <input type="radio" name="limbs" value=4>
                     3
                 </label>
                 <label class="form_label">
-                    <input type="radio" checked="checked" name="limbs" value= 4>
+                    <input type="radio" checked="checked" name="limbs" value=5>
                     4
                 </label>
             </div>
@@ -72,9 +72,9 @@
                 Сверхспособности:<br>
                 <label class="form_label labe">
                     <select name="superpowers" multiple="multiple">
-                        <option value= 0 selected="selected">Бессмертие</option>
-                        <option value= 1>Прохождение сквозь стены</option>
-                        <option value= 2>Левитация</option>
+                        <option value=0 selected="selected">Бессмертие</option>
+                        <option value=1>Прохождение сквозь стены</option>
+                        <option value=2>Левитация</option>
                     </select>
                 </label>
             </div>

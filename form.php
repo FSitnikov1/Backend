@@ -48,13 +48,6 @@ try {
 } catch (PDOException $e) {
 	die($e->getMessage());
 }
-print($_POST['username']);
-print($_POST['email']);
-print($_POST['birthday']);
-print($_POST['limbs']);
-print($_POST['sex']);
-print($_POST['superpowers']);
-print($_POST['biography']);
 
 $name = $_POST['username'];
 $email = $_POST['email'];
