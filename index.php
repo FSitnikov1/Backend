@@ -200,10 +200,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $superpowers = $_POST['superpowers'];
 
 
-
-    $db->query("SET NAMES 'utf8'");
-    $db->query("INSERT INTO `form` (`name`, `email`, `birthday`, `sex`, `limbs`, `biography`) VALUES ('$name', '$email', '$birthday', '$sex', '$limbs', '$biography');
-    INSERT INTO `super` (`superpowers`) VALUES ('$superpowers');");
+    $query = "SET NAMES 'utf8'";
+    $db->query($query);
+    $query = "INSERT INTO `form` (`name`, `email`, `birthday`, `sex`, `limbs`, `biography`) VALUES ('$name', '$email', '$birthday', '$sex', '$limbs', '$biography')";
+    $db->query($query);
+    $query = "INSERT INTO `super` (`superpowers`) VALUES ('$superpowers')";
+    $db->query(($query));
     $db->close();
     if ($db->connect_error) {
         echo "Error Number: " . $db->connect_errno . "<br>";
