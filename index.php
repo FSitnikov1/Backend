@@ -191,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         die($e->getMessage());
     }
 
-    $name = $_POST['username'];
+    $name = $_POST['fio'];
     $email = $_POST['email'];
     $birthday = $_POST['birthday'];
     $sex = $_POST['sex'];
