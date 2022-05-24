@@ -23,6 +23,9 @@
     <div class="main">
         <form class="formula" action="" method="POST">
             <h2 id="forma" class="undershape">Форма</h2>
+            <div>
+                <a href="./login.php">Войти</a>
+            </div>
             <div class="form_item <?php if ($errors['fio']) {
                                         print 'error';
                                     } ?>">
