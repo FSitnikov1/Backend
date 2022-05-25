@@ -4,8 +4,8 @@
 header('Content-Type: text/html; charset=UTF-8');
 setlocale(LC_ALL, "ru_RU.UTF-8");
 
-$bduser = 'root';   // Пользователь и по совместительству имя бд
-$bdpass = 'root';  // Пароль от пользователя
+$bduser = 'u46491';   // Пользователь и по совместительству имя бд
+$bdpass = '2600028';  // Пароль от пользователя
 $bdname = 'u46491';   // Название бд
 
 $debug = array();     // Массив для отлова ошибок
