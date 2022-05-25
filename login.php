@@ -67,7 +67,7 @@ else {
 
   {
     try {
-      $db = new mysqli("localhost", "$bduser", "$bdpass", "$bdname");
+      $db = new mysqli("localhost", "u46491", "2600028", "u46491");
     } catch (PDOException $e) {
       die($e->getMessage());
     }

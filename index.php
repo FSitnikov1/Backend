@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             // TODO: загрузить данные пользователя из БД
             //*************************
             try {
-                $db = new mysqli("localhost", "$bduser", "$bdpass", "$bdname");
+                $db = new mysqli("localhost", "u46491", "2600028", "u46491");
             } catch (PDOException $e) {
                 die($e->getMessage());
             }
@@ -271,7 +271,7 @@ else {
             // TODO: перезаписать данные в БД новыми данными
 
             try {
-                $db = new mysqli("localhost", "$bduser", "$bdpass", "$bdname");
+                $db = new mysqli("localhost", "u46491", "2600028", "u46491");
             } catch (PDOException $e) {
                 die($e->getMessage());
             }
@@ -322,7 +322,7 @@ else {
 
             // TODO: Сохранение данных формы, логина и хеш md5() пароля в базу данных.
             try {
-                $db = new mysqli("localhost", "$bduser", "$bdpass", "$bdname");
+                $db = new mysqli("localhost", "u46491", "2600028", "u46491");
             } catch (PDOException $e) {
                 die($e->getMessage());
             }
