@@ -22,7 +22,6 @@ session_start();
 // В суперглобальном массиве $_SESSION хранятся переменные сессии.
 // Будем сохранять туда логин после успешной авторизации.
 if (!empty($_SESSION['login'])) {
-  // session_destroy();
   // Если есть логин в сессии, то пользователь уже авторизован.
   // TODO: Сделать выход (окончание сессии вызовом session_destroy()
   session_destroy();
@@ -73,10 +72,8 @@ else {
       die($e->getMessage());
     }
 
-    $_SESSION['login'] = $_POST['login'];
-    $_SESSION['password'] = $_POST['pass'];
-    $login = $_SESSION['login'];
-    $password = $_SESSION['password'];
+    $login = $_POST['login'];
+    $password = $_POST['pass'];
 
     $query = "SET NAMES 'utf8'";
     $db->query($query);
@@ -96,8 +93,13 @@ else {
     $_SESSION['login'] = $_POST['login'];
     // Записываем ID пользователя.
     $_SESSION['uid'] = $row['id'];
+
+    setcookie('mes', '', 10000);
+
+    // Запускаем скрипт index.php заново.
     header('Location: index.php');
   } else {
+    // Сообщаем об ошибке и перезапускаем эту страницу.
     setcookie('mes', "Совпадений логина и пароля не найдено!", time() + 24 * 60 * 60);
     header('Location: login.php');
   }

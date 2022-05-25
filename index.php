@@ -6,7 +6,7 @@ setlocale(LC_ALL, "ru_RU.UTF-8");
 
 $bduser = 'root';   // Пользователь и по совместительству имя бд
 $bdpass = 'root';  // Пароль от пользователя
-$bdname = 'u46491';   // НАзвание бд
+$bdname = 'u46491';   // Название бд
 
 $debug = array();     // Массив для отлова ошибок
 
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             // Если в куках есть пароль, то выводим сообщение.
             if (!empty($_COOKIE['pass'])) {
                 $messages[] = sprintf(
-                    '<div>Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong>и паролем <strong>%s</strong> для изменения данных.</div>',
+                    '<div>Вы можете <a href="login.php">войти</a> с логином <strong>%s</strong> и паролем <strong>%s</strong> для изменения данных.</div>',
                     strip_tags($_COOKIE['login']),
                     strip_tags($_COOKIE['pass'])
                 );
@@ -102,10 +102,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     // ранее в сессию записан факт успешного логина, то загружаем данные пользователя из бд.
     // ****************************
     {
-        if (
-            empty($errors) && !empty($_COOKIE[session_name()]) &&
-            session_start() && !empty($_SESSION['login'])
-        ) {
+        if (!empty($_COOKIE[session_name()]) && session_start() && !empty($_SESSION['login'])) {
+
             // TODO: загрузить данные пользователя из БД
             //*************************
             try {
@@ -115,33 +113,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             }
 
             $login = $_SESSION['login'];
-            $uid = $_SESSION['uid'];
 
             $query = "SET NAMES 'utf8'";
             $db->query($query);
-            $query = "SELECT * FROM `authorization` WHERE `login` = '$login' and `uid` = '$uid'";
-            $idauth = $db->query($query);
-            $id = $idauth['id'];
-            $query = "SELECT * FROM `form` WHERE `id` = '$id'";
-            $idform = $db->query($query);
-            $query = "SELECT * FROM `super` WHERE `id` = '$id'";
-            $idsuper = $db->query($query);
+            $query = "SELECT * FROM `authorization` WHERE `login` = '$login'";
+            $data = $db->query($query);
+            $row = mysqli_fetch_array($data);
+            if (mysqli_num_rows($data) > 0 and $row['login'] = $login) {
+                $uid = $row['id'];
+                $query = "SELECT * FROM `form` WHERE `id` = '$uid'";
+                $uidform = $db->query($query);
+                $query = "SELECT * FROM `super` WHERE `id` = '$uid'";
+                $uidsuper = $db->query($query);
+                $row = mysqli_fetch_array($uidform);
+                $values['fio'] = $row['name'];
+                $values['email'] = $row['email'];
+                $values['birthday'] = $row['birthday'];
+                $values['sex'] = $row['sex'];
+                $values['limbs'] = $row['limbs'];
+                $values['biography'] = $row['biography'];
+                $row = mysqli_fetch_array($uidsuper);
+                $values['superpowers'] = $row['superpowers'];
+            } else {
 
+                setcookie('db_data_could_not-be_retrieved', '1', time() + 60 * 60);
+            }
             $db->close();
             if ($db->connect_error) {
                 echo "Error Number: " . $db->connect_errno . "<br>";
                 echo "Error: " . $db->connect_error;
             }
-            //*************************
-
-            $values['fio'] = $idform['name'];
-            $values['email'] = $idform['email'];
-            $values['birthday'] = $idform['birthday'];
-            $values['sex'] = $idform['sex'];
-            $values['limbs'] = $idform['limbs'];
-            $values['superpowers'] = $idsuper['superpowers'];
-            $values['biography'] = $idform['biography'];
-
             // и заполнить переменную $values,
             // предварительно санитизовав.
             printf('!!! Вход с логином %s, uid %d', $_SESSION['login'], $_SESSION['uid']);
@@ -276,22 +277,29 @@ else {
             }
 
             $login = $_SESSION['login'];
-            $password = $_SESSION['password'];
-            $uid = $_SESSION['uid'];
-            $fio = $values['fio'];
-            $email = $values['email'];
-            $birthday = $values['birthday'];
-            $sex = $values['sex'];
-            $limbs = $values['limbs'];
-            $biography = $values['biography'];
-            $superpowers = $values['superpowers'];
+            $fio = $_POST['fio'];
+            $email = $_POST['email'];
+            $birthday = $_POST['birthday'];
+            $sex = $_POST['sex'];
+            $limbs = $_POST['limbs'];
+            $biography = $_POST['biography'];
+            $superpowers = $_POST['superpowers'];
 
             $query = "SET NAMES 'utf8'";
             $db->query($query);
-            $query = "UPDATE `form` SET `name` = '$fio', `email` = '$email', `birthday` = '$birthday', `sex` = '$sex', `limbs` = '$limbs', `biography` = '$biography' WHERE `id` = 'uid'";
-            $db->query($query);
-            $query = "UPDATE `super` SET `superpowers` = 'superpowers' WHERE `id` = 'uid'";
-
+            $query = "SELECT * FROM `authorization` WHERE `login` = '$login'";
+            $data = $db->query($query);
+            $row = mysqli_fetch_array($data);
+            if (mysqli_num_rows($data) > 0 and $row['login'] = $login) {
+                $uid = $row['id'];
+                $query = "UPDATE `form` SET `name` = '$fio', `email` = '$email', `birthday` = '$birthday', `sex` = '$sex', `limbs` = '$limbs', `biography` = '$biography' WHERE `id` = '$uid'";
+                $db->query($query);
+                $query = "UPDATE `super` SET `superpowers` = '$superpowers' WHERE `id` = '$uid'";
+                $db->query($query);
+            } else {
+                //  Если в базе данных не найден такой пользователь, то сохраняем ошибку.
+                setcookie('db_overwriting_error', '1', time() + 60 * 60);
+            }
             $db->close();
             if ($db->connect_error) {
                 echo "Error Number: " . $db->connect_errno . "<br>";
