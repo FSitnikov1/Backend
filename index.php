@@ -4,10 +4,6 @@
 header('Content-Type: text/html; charset=UTF-8');
 setlocale(LC_ALL, "ru_RU.UTF-8");
 
-$bduser = 'u46491';   // Пользователь и по совместительству имя бд
-$bdpass = '2600028';  // Пароль от пользователя
-$bdname = 'u46491';   // Название бд
-
 $debug = array();     // Массив для отлова ошибок
 
 //  ****    Валидация, сохранения сообщений об ошибках, запись в значений поля
@@ -81,6 +77,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             setcookie('superpowers_error', '', time() + 24 * 60 * 60);
             $messages[] = '<div class="error">Выберите суперсилы.</div>';
         }
+        if ($errors['biography']) {
+            setcookie('biography_error', '', time() + 24 * 60 * 60);
+            $messages[] = '<div class="error">Неверные символы, допустимы (А-Я,A-Z,0-1,-,_).</div>';
+        }
         if ($errors['check']) {
             setcookie('check_error', '', time() + 24 * 60 * 60);
             $messages[] = '<div class="error">Согласитесь с условиями.</div>';
@@ -93,7 +93,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $values['birthday'] = empty($_COOKIE['birthday_value']) ? '' : $_COOKIE['birthday_value'];
         $values['sex'] = empty($_COOKIE['sex_value']) ? '' : $_COOKIE['sex_value'];
         $values['limbs'] = empty($_COOKIE['limbs_value']) ? '' : $_COOKIE['limbs_value'];
-        $values['superpowers'] = empty($_COOKIE['superpowers_value']) ? '' : $_COOKIE['superpowers_value'];
+        $values['superpowers_imm'] = empty($_COOKIE['superpowers_value_imm']) ? '' : $_COOKIE['superpowers_value_imm'];
+        $values['superpowers_ptw'] = empty($_COOKIE['superpowers_value_ptw']) ? '' : $_COOKIE['superpowers_value_ptw'];
+        $values['superpowers_lev'] = empty($_COOKIE['superpowers_value_lev']) ? '' : $_COOKIE['superpowers_value_lev'];
         $values['biography'] = empty($_COOKIE['biography_value']) ? '' : $_COOKIE['biography_value'];
         $values['check'] = empty($_COOKIE['check_value']) ? '' : $_COOKIE['check_value'];
     }
@@ -106,25 +108,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 
             // TODO: загрузить данные пользователя из БД
             //*************************
-            try {
-                $db = new mysqli("localhost", "u46491", "2600028", "u46491");
-            } catch (PDOException $e) {
-                die($e->getMessage());
-            }
-
             $login = $_SESSION['login'];
-
+            require('db_connect.php');      //  Подключаем скрипт.
             $query = "SET NAMES 'utf8'";
-            $db->query($query);
-            $query = "SELECT * FROM `authorization` WHERE `login` = '$login'";
-            $data = $db->query($query);
+            $result = mysqli_query($db, $query);
+            $query = "SELECT * FROM authorization WHERE login = '$login'";
+            $data = mysqli_query($db, $query);
             $row = mysqli_fetch_array($data);
             if (mysqli_num_rows($data) > 0 and $row['login'] = $login) {
                 $uid = $row['id'];
-                $query = "SELECT * FROM `form` WHERE `id` = '$uid'";
-                $uidform = $db->query($query);
-                $query = "SELECT * FROM `super` WHERE `id` = '$uid'";
-                $uidsuper = $db->query($query);
+                $query = "SELECT * FROM form WHERE id = '$uid'";
+                $uidform = mysqli_query($db, $query);
+                $query = "SELECT * FROM super WHERE id = '$uid'";
+                $uidsuper = mysqli_query($db, $query);
                 $row = mysqli_fetch_array($uidform);
                 $values['fio'] = $row['name'];
                 $values['email'] = $row['email'];
@@ -132,16 +128,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
                 $values['sex'] = $row['sex'];
                 $values['limbs'] = $row['limbs'];
                 $values['biography'] = $row['biography'];
+
                 $row = mysqli_fetch_array($uidsuper);
-                $values['superpowers'] = $row['superpowers'];
+                $values['superpowers_imm'] = $row['immortal'];
+                $values['superpowers_ptw'] = $row['ptw'];
+                $values['superpowers_lev'] = $row['levitation'];
             } else {
 
                 setcookie('db_data_could_not-be_retrieved', '1', time() + 60 * 60);
-            }
-            $db->close();
-            if ($db->connect_error) {
-                echo "Error Number: " . $db->connect_errno . "<br>";
-                echo "Error: " . $db->connect_error;
             }
             // и заполнить переменную $values,
             // предварительно санитизовав.
@@ -221,12 +215,22 @@ else {
             setcookie('superpowers_error', '1', time() + 24 * 60 * 60);
             $errors = TRUE;
         } else {
-            if (!preg_match('/^\d+$/', $_POST['superpowers'])) {
-                setcookie('superpowers_error', '2', time() + 24 * 60 * 60);
-                $errors = TRUE;
-            } else {
-                $asup = $_POST['superpowers'];
-                setcookie('superpowers_value', $_POST['superpowers'], time() + 31 * 24 * 60 * 60);
+            $sup = $_POST['superpowers'];
+            for ($a = 0; $a < count($sup); $a++) {
+                if (!preg_match('/^\d+$/', $sup[$a])) {
+                    setcookie('superpowers_error', '2', time() + 24 * 60 * 60);
+                    $errors = TRUE;
+                } else {
+                    if ($sup[$a] == 1) {
+                        setcookie('superpowers_value_imm', '1', time() + 31 * 24 * 60 * 60);
+                    } else {
+                        if ($sup[$a] == 2) {
+                            setcookie('superpowers_value_ptw', '1', time() + 31 * 24 * 60 * 60);
+                        } else {
+                            setcookie('superpowers_value_lev', '1', time() + 31 * 24 * 60 * 60);
+                        }
+                    }
+                }
             }
         }
         if (empty($_POST['check'])) {
@@ -243,7 +247,12 @@ else {
         if (empty($_POST['biography'])) {
             setcookie('biography_value', '', time() + 31 * 24 * 60 * 60);
         } else {
-            setcookie('biography_value', $_POST['biography'], time() + 31 * 24 * 60 * 60);
+            if (!preg_match('/^[a-zA-Zа-яёА-ЯЁ0-9-_]{2,255}+$/u', $_POST['biography'])) {
+                setcookie('biography_error', '2', time() + 24 * 60 * 60);
+                $errors = TRUE;
+            } else {
+                setcookie('biography_value', $_POST['biography'], time() + 31 * 24 * 60 * 60);
+            }
         }
 
         if ($errors) {
@@ -269,13 +278,6 @@ else {
         // ****************************
         {
             // TODO: перезаписать данные в БД новыми данными
-
-            try {
-                $db = new mysqli("localhost", "u46491", "2600028", "u46491");
-            } catch (PDOException $e) {
-                die($e->getMessage());
-            }
-
             $login = $_SESSION['login'];
             $fio = $_POST['fio'];
             $email = $_POST['email'];
@@ -283,27 +285,39 @@ else {
             $sex = $_POST['sex'];
             $limbs = $_POST['limbs'];
             $biography = $_POST['biography'];
-            $superpowers = $_POST['superpowers'];
+            $sup_imm = 0;
+            $sup_ptw = 0;
+            $sup_lev = 0;
+            $sup = $_POST['superpowers'];
+            for ($a = 0; $a < count($sup); $a++) {
+                if ($sup[$a] == 1) {
+                    $sup_imm = '1';
+                } else {
+                    if ($sup[$a] == 2) {
+                        $sup_ptw = '1';
+                    } else {
+                        if ($sup[$a] == 3) {
+                            $sup_lev = '1';
+                        }
+                    }
+                }
+            }
 
+            require('db_connect.php');      //  Подключаем скрипт.
             $query = "SET NAMES 'utf8'";
-            $db->query($query);
-            $query = "SELECT * FROM `authorization` WHERE `login` = '$login'";
-            $data = $db->query($query);
+            $result = mysqli_query($db, $query);
+            $query = "SELECT * FROM authorization WHERE login = '$login'";
+            $data = mysqli_query($db, $query);
             $row = mysqli_fetch_array($data);
             if (mysqli_num_rows($data) > 0 and $row['login'] = $login) {
                 $uid = $row['id'];
-                $query = "UPDATE `form` SET `name` = '$fio', `email` = '$email', `birthday` = '$birthday', `sex` = '$sex', `limbs` = '$limbs', `biography` = '$biography' WHERE `id` = '$uid'";
-                $db->query($query);
-                $query = "UPDATE `super` SET `superpowers` = '$superpowers' WHERE `id` = '$uid'";
-                $db->query($query);
+                $query = "UPDATE form SET name = '$fio', email = '$email', birthday = '$birthday', sex = '$sex', limbs = '$limbs', biography = '$biography' WHERE id = '$uid'";
+                $result = mysqli_query($db, $query);
+                $query = "UPDATE super SET immortal = '$sup_imm', ptw = '$sup_ptw', levitation = '$sup_lev' WHERE id = '$uid'";
+                $result = mysqli_query($db, $query);
             } else {
                 //  Если в базе данных не найден такой пользователь, то сохраняем ошибку.
                 setcookie('db_overwriting_error', '1', time() + 60 * 60);
-            }
-            $db->close();
-            if ($db->connect_error) {
-                echo "Error Number: " . $db->connect_errno . "<br>";
-                echo "Error: " . $db->connect_error;
             }
         }
     } else {
@@ -317,16 +331,11 @@ else {
             $login = rand(1000, 9000);
             $pass = rand(100000, 900000);
             // Сохраняем в Cookies.
-            setcookie('login', $login, time() + 24 * 60 * 60);
-            setcookie('pass', $pass, time() + 24 * 60 * 60);
+            setcookie('login', $login, time() + 60);
+            setcookie('pass', $pass, time() + 60);
+            $pass = password_hash($pass, PASSWORD_DEFAULT);
 
             // TODO: Сохранение данных формы, логина и хеш md5() пароля в базу данных.
-            try {
-                $db = new mysqli("localhost", "u46491", "2600028", "u46491");
-            } catch (PDOException $e) {
-                die($e->getMessage());
-            }
-
             $name = $_POST['fio'];
             $email = $_POST['email'];
             $birthday = $_POST['birthday'];
@@ -334,24 +343,33 @@ else {
             $limbs = $_POST['limbs'];
             $biography = $_POST['biography'];
             $superpowers = $_POST['superpowers'];
+            $sup_imm = 0;
+            $sup_ptw = 0;
+            $sup_lev = 0;
+            $sup = $_POST['superpowers'];
+            for ($a = 0; $a < count($sup); $a++) {
+                if ($sup[$a] == 1) {
+                    $sup_imm = 1;
+                } else {
+                    if ($sup[$a] == 2) {
+                        $sup_ptw = 1;
+                    } else {
+                        if ($sup[$a] == 3) {
+                            $sup_lev = 1;
+                        }
+                    }
+                }
+            }
 
-            try {
-                $query = "SET NAMES 'utf8'";
-                $db->query($query);
-                $query = "INSERT INTO `form` (`name`, `email`, `birthday`, `sex`, `limbs`, `biography`) VALUES ('$name', '$email', '$birthday', '$sex', '$limbs', '$biography')";
-                $db->query($query);
-                $query = "INSERT INTO `super` (`superpowers`) VALUES ('$superpowers')";
-                $db->query($query);
-                $query = "INSERT INTO `authorization` (`login`, `password`) VALUES ('$login', '$pass')";
-                $db->query($query);
-                $db->close();
-            } catch (PDOException $e) {
-                die($e->getMessage());
-            }
-            if ($db->connect_error) {
-                echo "Error Number: " . $db->connect_errno . "<br>";
-                echo "Error: " . $db->connect_error;
-            }
+            require('db_connect.php');      //  Подключаем скрипт.
+            $query = "SET NAMES 'utf8'";
+            $result = mysqli_query($db, $query);
+            $query = "INSERT INTO form (name, email, birthday, sex, limbs, biography) VALUES ('$name', '$email', '$birthday', '$sex', '$limbs', '$biography')";
+            $result = mysqli_query($db, $query);
+            $query = "INSERT INTO super (immortal, ptw, levitation) VALUES ('$sup_imm', '$sup_ptw', '$sup_lev')";
+            $result = mysqli_query($db, $query);
+            $query = "INSERT INTO authorization (login, password) VALUES ('$login', '$pass')";
+            $result = mysqli_query($db, $query);
         }
     }
 
