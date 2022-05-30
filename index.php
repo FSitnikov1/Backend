@@ -247,7 +247,7 @@ else {
         if (empty($_POST['biography'])) {
             setcookie('biography_value', '', time() + 31 * 24 * 60 * 60);
         } else {
-            if (!preg_match('/^[a-zA-Zа-яёА-ЯЁ0-9-_]{2,255}+$/u', $_POST['biography'])) {
+            if (!preg_match('/^[a-zA-Zа-яёА-ЯЁ0-9-_ ]{2,255}+$/u', $_POST['biography'])) {
                 setcookie('biography_error', '2', time() + 24 * 60 * 60);
                 $errors = TRUE;
             } else {
