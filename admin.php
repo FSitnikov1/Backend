@@ -46,7 +46,7 @@ if (
                 <div id="db_del_input" class="col m-1 p-1 rounded-3 border border-dark" style="background-color:darkgrey;">
                     <?php if (!empty($_COOKIE['mes'])) { ?> <div class=" alert alert-warning" role="alert"><?php echo $_COOKIE['mes'] ?></div><?php }
                                                                                                                                             setcookie('mes', '', 10000); ?>
-                    <form action="./db_delu.php" method="POST">
+                    <form action="db_delu.php" method="POST">
                         <div class="input-group mb-3">
                             <span class="input-group-text">ID</span>
                             <input type="text" name="did" class="form-control" placeholder="ID on delete">
@@ -57,7 +57,7 @@ if (
                 <div id="db_del_input" class="col m-2 p-2 rounded-3 border border-dark" style="background-color:darkgrey;">
                     <?php if (!empty($_COOKIE['mesch'])) { ?> <div class="alert alert-warning" role="alert"><?php echo $_COOKIE['mesch'] ?></div><?php }
                                                                                                                                                 setcookie('mesch', '', 10000); ?>
-                    <form action="./db_ch_u.php" method="POST">
+                    <form action="db_ch_u.php" method="POST">
                         <h4 class="text-center">Изменить данные пользователя</h4>
                         <div class="input-group mb-3">
                             <span class="input-group-text">ID</span>
@@ -130,9 +130,6 @@ if (
                     <h3>Список пользователей</h3>
                     <?php
                     require_once 'db_connect.php';
-                    if ($db->dbect_error) {
-                        die("Ошибка: " . $db->dbect_error);
-                    }
                     $query = "SELECT * FROM form INNER JOIN super using(id);";
                     if ($result = mysqli_query($db, $query)) {
                         $rowsCount = $result->num_rows; // количество полученных строк

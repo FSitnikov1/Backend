@@ -1,5 +1,5 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] == 'GET' || !preg_match('/^[\d]{1,255}+$/', $_POST['login'])) {
+if ($_SERVER['REQUEST_METHOD'] == 'GET' || !preg_match('/^[\d]{1,255}+$/', $_POST['chid'])) {
     header('Location: admin.php');
 } else {
     $chid = $_POST['chid'];
